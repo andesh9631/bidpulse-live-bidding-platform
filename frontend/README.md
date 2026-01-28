@@ -1,70 +1,79 @@
-# Getting Started with Create React App
+# BidPulse 
+### Real-Time Live Bidding Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+BidPulse is a real-time auction platform where multiple users can bid on items simultaneously in the final seconds.  
+It is built with **React**, **Node.js**, and **Socket.io**, and focuses on **real-time updates, race-condition handling, and server-authoritative synchronization**.
 
-## Available Scripts
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+### Core Functionality
+- 📦 Multiple auction items displayed in a responsive grid
+- ⏱ Live countdown timer synced with server time
+- 💸 Incremental bidding (`Bid +10`)
+- 🔄 Real-time bid updates using Socket.io
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### ⚡ Real-Time Experience
+- 🟢 **Green flash animation** when a new bid arrives (from anyone)
+- 🏆 **Winning badge** when you are the highest bidder
+- ❌ **Red “Outbid” state** when another user bids higher
+- 🔔 Real-time toast notifications:
+  - ✅ Bid successful
+  - 🔵 New bid from another user
+  - ⚠️ Outbid / invalid bid
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 🔒 Concurrency & Safety
+- Race-condition safe bidding using a **mutex (lock)**
+- If two users bid at the same millisecond:
+  - Only the **first bid is accepted**
+  - The second user receives an **“Outbid” error instantly**
+- Server-authoritative auction state (client cannot cheat)
 
-### `npm test`
+### 🎨 UI & UX
+- Clean, modern card-based UI
+- Responsive layout (desktop, tablet, mobile)
+- Hover effects & smooth animations
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 🏗 Tech Stack
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Frontend
+- React
+- Socket.io Client
+- CSS (modular, component-based)
 
-### `npm run eject`
+### Backend
+- Node.js
+- Express
+- Socket.io
+- In-memory data store (easily replaceable with DB/Redis)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 📁 Project Structure
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Live-Bidding-platform/
+├── backend/
+│ ├── server.js # HTTP + WebSocket server
+│ ├── auctions.js # Auction business logic
+│ └── mutex.js # Concurrency control (race condition handling)
+│
+├── frontend/
+│ ├── src/
+│ │ ├── components/ # UI components
+│ │ ├── hooks/ # Custom hooks (countdown, theme)
+│ │ ├── styles/ # Modular CSS files
+│ │ ├── App.js
+│ │ └── index.js
+│ └── package.json
+│
+└── README.md
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Start the backend server
+-node src/server.js
 
-## Learn More
+## Start the React app
+- npm start
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
