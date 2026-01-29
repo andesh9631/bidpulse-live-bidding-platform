@@ -1,5 +1,6 @@
-export async function fetchItems() {
-  const res = await fetch("http://127.0.0.1:4000/items");
-  if (!res.ok) throw new Error("Failed to fetch items");
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:4000";
+
+export const fetchItems = async () => {
+  const res = await fetch(`${API_URL}/items`);
   return res.json();
-}
+};
