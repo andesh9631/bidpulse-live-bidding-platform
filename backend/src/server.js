@@ -2,7 +2,8 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
-const { auctions, placeBid } = require("./auctions");
+const { getItems, placeBid } = require("./auctions");
+
 
 const app = express();
 app.use(cors());
@@ -12,7 +13,7 @@ app.use(express.json());
 app.get("/items", (req, res) => {
   res.json({
     serverTime: Date.now(),
-    items: auctions,
+    items: getItems(),
   });
 });
 
@@ -58,6 +59,8 @@ io.on("connection", (socket) => {
 
 
 
-server.listen(4000, () => {
-  console.log("Backend running on http://localhost:4000");
+const PORT = process.env.PORT || 4000;
+
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
