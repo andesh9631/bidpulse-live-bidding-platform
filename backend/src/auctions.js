@@ -1,91 +1,54 @@
-// const Mutex = require("./mutex");
-// const mutex = new Mutex();
-
-// function createAuction() {
-//   return {
-//     id: 1,
-//     title: "MacBook Pro",
-//     startingPrice: 500,
-//     currentBid: 500,
-//     highestBidder: null,
-//     endsAt: Date.now() + 2 * 60 * 1000, // 2 minutes from NOW
-//   };
-// }
-
-// let auctions = [createAuction()];
-
-// async function placeBid(itemId, amount, userId) {
-//   await mutex.lock();
-//   try {
-//     let item = auctions.find((i) => i.id === itemId);
-//     if (!item) throw new Error("Item not found");
-
-//     // 🔁 AUTO-RESET AUCTION IF ENDED
-//     if (Date.now() > item.endsAt) {
-//       item = createAuction();
-//       auctions[0] = item;
-//     }
-
-//     if (amount <= item.currentBid) throw new Error("Outbid");
-
-//     item.currentBid = amount;
-//     item.highestBidder = userId;
-
-//     return item;
-//   } finally {
-//     mutex.unlock();
-//   }
-// }
-
-// module.exports = { auctions, placeBid };
 
 
-const Mutex = require("./mutex");
-const mutex = new Mutex();
+function createAuctions() {
+  const now = Date.now();
 
-function createAuction(id, title, startingPrice) {
-  return {
-    id,
-    title,
-    startingPrice,
-    currentBid: startingPrice,
-    highestBidder: null,
-    endsAt: Date.now() + 2 * 60 * 1000, // 2 minutes
-  };
+  return [
+    {
+      id: 1,
+      title: "MacBook Pro",
+      startingPrice: 500,
+      currentBid: 500,
+      highestBidder: null,
+      endsAt: now + 10 * 60 * 1000, // 🔥 10 minutes
+    },
+    {
+      id: 2,
+      title: "Gaming Laptop",
+      startingPrice: 800,
+      currentBid: 800,
+      highestBidder: null,
+      endsAt: now + 12 * 60 * 1000,
+    },
+    {
+      id: 3,
+      title: "Designer Handbag",
+      startingPrice: 400,
+      currentBid: 400,
+      highestBidder: null,
+      endsAt: now + 8 * 60 * 1000,
+    },
+    {
+      id: 4,
+      title: "Smart Watch Pro",
+      startingPrice: 300,
+      currentBid: 300,
+      highestBidder: null,
+      endsAt: now + 6 * 60 * 1000,
+    },
+    {
+      id: 5,
+      title: "Professional Camera",
+      startingPrice: 1200,
+      currentBid: 1200,
+      highestBidder: null,
+      endsAt: now + 15 * 60 * 1000,
+    },
+  ];
 }
 
-let auctions = [
-  createAuction(1, "MacBook Pro", 500),
-  createAuction(2, "Gaming Laptop", 800),
-  createAuction(3, "Designer Handbag", 400),
-  createAuction(4, "Smart Watch Pro", 300),
-  createAuction(5, "Professional Camera", 1200),
-];
+let items = createAuctions();
 
-async function placeBid(itemId, amount, userId) {
-  await mutex.lock();
-  try {
-    const itemIndex = auctions.findIndex((i) => i.id === itemId);
-    if (itemIndex === -1) throw new Error("Item not found");
-
-    let item = auctions[itemIndex];
-
-    // 🔁 Auto-reset individual auction if ended
-    if (Date.now() > item.endsAt) {
-      const resetItem = createAuction(item.id, item.title, item.startingPrice);
-      auctions[itemIndex] = resetItem;
-      item = resetItem;
-    }
-
-    if (amount <= item.currentBid) throw new Error("Outbid");
-
-    item.currentBid = amount;
-    item.highestBidder = userId;
-
-    return item;
-  } finally {
-    mutex.unlock();
-  }
-}
-
-module.exports = { auctions, placeBid };
+module.exports = {
+  getItems: () => items,
+};
