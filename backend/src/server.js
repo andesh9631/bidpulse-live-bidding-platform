@@ -6,35 +6,55 @@ const { getItems, placeBid } = require("./auctions");
 
 const app = express();
 
-/*
-✅ PRODUCTION CORS
-Never use "*" in production with sockets
-*/
+/* =====================================================
+   ✅ CORS CONFIG (Production Safe)
+   ===================================================== */
+
 const allowedOrigins = [
-  "http://localhost:3000",
-  "https://mern-frontend.vercel.app",
+  "http://localhost:3000", // local
+  "https://mern-frontend.vercel.app", // ⚠️ CHANGE if your Vercel domain is different
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
+    origin: function (origin, callback) {
+      // allow requests with no origin (mobile apps, curl, postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) === -1) {
+        return callback(new Error("CORS not allowed"));
+      }
+
+      return callback(null, true);
+    },
     credentials: true,
   }),
 );
 
 app.use(express.json());
 
-/* ---------------- REST API ---------------- */
+/* =====================================================
+   ✅ REST API
+   ===================================================== */
 
-app.get("/items", (req, res) => {
-  res.json({
-    serverTime: Date.now(),
-    items: getItems(),
-  });
+app.get("/", (req, res) => {
+  res.send("🚀 BidPulse Backend Running...");
 });
 
-/* ---------------- SOCKET ---------------- */
+app.get("/items", (req, res) => {
+  try {
+    res.json({
+      serverTime: Date.now(),
+      items: getItems(),
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch items" });
+  }
+});
+
+/* =====================================================
+   ✅ SOCKET SERVER
+   ===================================================== */
 
 const server = http.createServer(app);
 
@@ -44,22 +64,25 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
     credentials: true,
   },
+  transports: ["websocket"], // ⭐ prevents polling issues on Render
 });
 
 io.on("connection", (socket) => {
   console.log("✅ Client connected:", socket.id);
 
+  /* ================= BID EVENT ================= */
+
   socket.on("BID_PLACED", async ({ itemId, amount, userId }) => {
     try {
       const updatedItem = await placeBid(itemId, amount, userId);
 
-      // Success to bidder
+      // Notify bidder
       socket.emit("BID_SUCCESS", {
         item: updatedItem.title,
         amount: updatedItem.currentBid,
       });
 
-      // Notify others
+      // Notify other users
       socket.broadcast.emit("NEW_BID", {
         item: updatedItem.title,
         amount: updatedItem.currentBid,
@@ -78,7 +101,9 @@ io.on("connection", (socket) => {
   });
 });
 
-/* ---------------- START SERVER ---------------- */
+/* =====================================================
+   ✅ START SERVER (Render Compatible)
+   ===================================================== */
 
 const PORT = process.env.PORT || 4000;
 
