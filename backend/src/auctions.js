@@ -1,54 +1,45 @@
+const AUCTION_DURATION = 5 * 60 * 1000; // 5 minutes
 
-
-function createAuctions() {
-  const now = Date.now();
-
-  return [
-    {
-      id: 1,
-      title: "MacBook Pro",
-      startingPrice: 500,
-      currentBid: 500,
-      highestBidder: null,
-      endsAt: now + 10 * 60 * 1000, // 🔥 10 minutes
-    },
-    {
-      id: 2,
-      title: "Gaming Laptop",
-      startingPrice: 800,
-      currentBid: 800,
-      highestBidder: null,
-      endsAt: now + 12 * 60 * 1000,
-    },
-    {
-      id: 3,
-      title: "Designer Handbag",
-      startingPrice: 400,
-      currentBid: 400,
-      highestBidder: null,
-      endsAt: now + 8 * 60 * 1000,
-    },
-    {
-      id: 4,
-      title: "Smart Watch Pro",
-      startingPrice: 300,
-      currentBid: 300,
-      highestBidder: null,
-      endsAt: now + 6 * 60 * 1000,
-    },
-    {
-      id: 5,
-      title: "Professional Camera",
-      startingPrice: 1200,
-      currentBid: 1200,
-      highestBidder: null,
-      endsAt: now + 15 * 60 * 1000,
-    },
-  ];
+function createAuction(id, title, price) {
+  return {
+    id,
+    title,
+    startingPrice: price,
+    currentBid: price,
+    highestBidder: null,
+    endsAt: Date.now() + AUCTION_DURATION,
+  };
 }
 
-let items = createAuctions();
+let auctions = [
+  createAuction(1, "MacBook Pro", 500),
+  createAuction(2, "Gaming Laptop", 800),
+  createAuction(3, "Designer Handbag", 400),
+  createAuction(4, "Smart Watch Pro", 300),
+  createAuction(5, "Professional Camera", 1200),
+];
 
-module.exports = {
-  getItems: () => items,
-};
+function getItems() {
+  return auctions;
+}
+
+async function placeBid(itemId, amount, userId) {
+  const item = auctions.find((a) => a.id === itemId);
+
+  if (!item) throw new Error("Item not found");
+
+  if (Date.now() > item.endsAt) {
+    throw new Error("Auction ended");
+  }
+
+  if (amount <= item.currentBid) {
+    throw new Error("Outbid");
+  }
+
+  item.currentBid = amount;
+  item.highestBidder = userId;
+
+  return item;
+}
+
+module.exports = { getItems, placeBid };
